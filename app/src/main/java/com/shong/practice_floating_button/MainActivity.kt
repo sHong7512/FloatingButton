@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Layout
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -19,6 +20,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var fab_Sub2 : FloatingActionButton
     var fab_isOpened = false
 
+
+    lateinit var fabMainSec : FloatingActionButton
+    lateinit var fabSubSec1 : FloatingActionButton
+    lateinit var fabSubSec2 : FloatingActionButton
+    lateinit var fabSubSec3 : FloatingActionButton
+    lateinit var fabSubSec4 : FloatingActionButton
+    var fab_isOpenedSec = false
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,33 +36,45 @@ class MainActivity : AppCompatActivity() {
         fab_Main = findViewById(R.id.fab_main)
         fab_Sub1 = findViewById(R.id.fab_sub1)
         fab_Sub2 = findViewById(R.id.fab_sub2)
-        fab_Main.setOnClickListener { onClick(fab_Main) }
-        fab_Sub1.setOnClickListener { onClick(fab_Sub1) }
-        fab_Sub2.setOnClickListener { onClick(fab_Sub2) }
+        fab_Main.setOnClickListener { onClick(it) }
+        fab_Sub1.setOnClickListener { onClick(it) }
+        fab_Sub2.setOnClickListener { onClick(it) }
+
+
+        //sector form button
+        val includeView = findViewById<View>(R.id.sectorButton)
+        fabMainSec = includeView.findViewById(R.id.fabMain)
+        fabSubSec1 = includeView.findViewById(R.id.fabSub1)
+        fabSubSec2 = includeView.findViewById(R.id.fabSub2)
+        fabSubSec3 = includeView.findViewById(R.id.fabSub3)
+        fabSubSec4 = includeView.findViewById(R.id.fabSub4)
+        fabMainSec.setOnClickListener{onClick(it)}
+        fabSubSec1.setOnClickListener{onClick(it)}
+        fabSubSec2.setOnClickListener{onClick(it)}
+        fabSubSec3.setOnClickListener{onClick(it)}
+        fabSubSec4.setOnClickListener{onClick(it)}
     }
 
 
-    fun onClick(v : View){
+    private fun onClick(v : View){
         when(v.id){
             R.id.fab_main ->{
                 Log.d(TAG,"fab_main click!")
                 basic_floating()
             }
-
-            R.id.fab_sub1 ->{
-
+            R.id.fabMain ->{
+                Log.d(TAG,"fabMain click!")
+                sectorForm()
             }
-            R.id.fab_sub2 ->{
 
-            }
             else -> {
-                Log.d(TAG, "click event Id is wrong!")
+                Log.d(TAG, "click otherButton")
             }
         }
     }
 
 
-    fun basic_floating(){
+    private fun basic_floating(){
         var px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60f, this.resources.displayMetrics)
 
         if(!fab_isOpened){
@@ -87,6 +109,38 @@ class MainActivity : AppCompatActivity() {
             fab_isOpened = false
         }
 
+    }
+
+    //sector form button
+    private fun sectorForm(){
+        val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f, this.resources.displayMetrics)
+
+        if(!fab_isOpened){
+            createStartAnimator(fabSubSec1,px,"translationY")
+            createStartAnimator(fabSubSec2,px/2,"translationX")
+            createStartAnimator(fabSubSec2,px * Math.sqrt(3.0).toFloat()/2,"translationY")
+            createStartAnimator(fabSubSec3,px * Math.sqrt(3.0).toFloat()/2,"translationX")
+            createStartAnimator(fabSubSec3,px/2,"translationY")
+            createStartAnimator(fabSubSec4,px,"translationX")
+            fab_isOpened = true
+        }else{
+            createEndAnimator(fabSubSec1,px,"translationY")
+            createEndAnimator(fabSubSec2,px/2,"translationX")
+            createEndAnimator(fabSubSec2,px * Math.sqrt(3.0).toFloat()/2,"translationY")
+            createEndAnimator(fabSubSec3,px * Math.sqrt(3.0).toFloat()/2,"translationX")
+            createEndAnimator(fabSubSec3,px/2,"translationY")
+            createEndAnimator(fabSubSec4,px,"translationX")
+            fab_isOpened = false
+        }
+    }
+
+    private val createStartAnimator : (View, Float, String) -> Unit = { v: View, px: Float, property: String ->
+        ObjectAnimator.ofFloat(v, property, 0f, -px)
+            .apply { target = v; duration = 400; interpolator = OvershootInterpolator() }.start()
+    }
+
+    private val createEndAnimator : (View, Float, String) -> Unit = { v: View, px: Float, property: String ->
+        ObjectAnimator.ofFloat(v, property, -px, 0f).apply { target = v; duration = 300 }.start()
     }
 
 }
